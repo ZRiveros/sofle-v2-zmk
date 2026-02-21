@@ -1,6 +1,0 @@
-// Override LED chain length for Aurora Sofle right with per-key RGB
-// Hardware: 29 per-key RGB + 6 underglow = 35 total LEDs
-
-&led_strip {
-    chain-length = <35>;
-};
