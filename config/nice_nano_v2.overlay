@@ -1,6 +1,8 @@
 // RGB underglow for Aurora Sofle v2 with nice!nano v2
 // Hardware: WS2812 LEDs, 6 underglow per side (Aurora standard)
 
+#include <dt-bindings/led/led.h>
+
 &pinctrl {
     spi3_default: spi3_default {
         group1 {
