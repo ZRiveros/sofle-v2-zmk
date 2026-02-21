@@ -195,9 +195,9 @@
             bindings = <
 &kp ESC           &n1_excl  &n2_at  &n3_hash  &n4_dllr    &n5_prcnt                                  &n6_caret  &n7_amps     &n8_star     &n9_lpar  &n0_rpar         &kp BACKSPACE
 &kp TAB           &kp Q     &kp W   &kp E     &kp R       &kp T                                      &kp Y      &kp U        &kp I        &kp O     &kp P            &kp SV_A_RING
-&kp LEFT_SHIFT    &kp A     &kp S   &kp D     &kp F       &kp G                                      &kp H      &kp J        &kp K        &kp L     &kp SV_O_UMLAUT  &kp SV_A_UMLAUT
-&kp LEFT_CONTROL  &kp Z     &kp X   &kp C     &kp V       &kp B      &kp C_MUTE    &rgb_ug RGB_TOG  &kp N      &kp M        &comma_lt    &dot_gt   &slash_qmark     &kp SV_MINUS
-                                    &kp LALT  &kp LCMD    &trans     &kp SPACE     &kp ENTER        &mo 2      &sqt_dqt     &semi_colon  &plus_equal
+&kp LSHFT         &kp A     &kp S   &kp D     &kp F       &kp G                                      &kp H      &kp J        &kp K        &kp L     &kp SV_O_UMLAUT  &kp SV_A_UMLAUT
+&kp LCTRL         &kp Z     &kp X   &kp C     &kp V       &kp B      &kp C_MUTE    &rgb_ug RGB_TOG  &kp N      &kp M        &comma_lt    &dot_gt   &slash_qmark     &kp SV_MINUS
+                            &kp LGUI &kp LALT &mo 2       &lbkt_lbrc &kp SPACE    &kp ENTER        &rbkt_rbrc &trans       &sqt_dqt     &plus_equal
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp RGB_BRI RGB_BRD>;
@@ -208,9 +208,9 @@
             bindings = <
 &bt BT_CLR        &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4                    &bslash_tilde  &mu_mu  &pound_pound  &euro_euro  &slash_qmark  &kp DEL
 &out OUT_TOG      &trans        &trans        &trans        &trans        &trans                          &trans         &trans  &trans        &trans      &trans        &trans
-&kp LEFT_SHIFT    &trans        &trans        &trans        &trans        &trans                          &kp LEFT       &kp DOWN  &kp UP      &kp RIGHT   &trans        &trans
-&kp LEFT_CONTROL  &trans        &trans        &trans        &trans        &trans        &trans    &trans  &trans         &trans  &trans        &trans      &trans        &trans
-                                              &trans        &trans        &trans        &trans    &trans  &mo 3          &trans  &trans        &trans
+&kp LSHFT         &trans        &trans        &trans        &trans        &trans                          &kp LEFT       &kp DOWN  &kp UP      &kp RIGHT   &trans        &trans
+&kp LCTRL         &trans        &trans        &trans        &trans        &trans        &trans    &trans  &trans         &trans  &trans        &trans      &trans        &trans
+                                              &trans        &trans        &trans        &trans    &trans  &trans         &mo 3    &trans        &trans      &trans
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp C_VOL_UP C_VOL_DN>;
@@ -219,11 +219,11 @@
         raise_layer {
             display-name = "Raise";
             bindings = <
-&bt BT_CLR        &bt BT_SEL 0     &bt BT_SEL 1     &bt BT_SEL 2     &bt BT_SEL 3  &bt BT_SEL 4                                &kp F10        &kp F11  &kp F12  &trans          &trans              &kp DEL
-&out OUT_TOG      &trans           &kp UP_ARROW     &trans           &trans        &trans                                      &kp F7         &kp F8   &kp F9   &trans          &trans              &kp C_AL_SCREEN_SAVER
-&kp LEFT_SHIFT    &kp LEFT_ARROW   &kp DOWN_ARROW   &kp RIGHT_ARROW  &trans        &trans                                      &kp F4         &kp F5   &kp F6   &trans          &kp UP_ARROW        &kp PRINTSCREEN
-&kp LEFT_CONTROL  &trans           &trans           &trans           &trans        &trans        &kp C_MUTE    &rgb_ug RGB_TOG  &kp F1         &kp F2   &kp F3   &kp LEFT_ARROW  &kp DOWN_ARROW      &kp RIGHT_ARROW
-                                                    &trans           &trans        &trans        &trans        &trans           &trans         &trans   &trans   &trans
+&bt BT_CLR        &bt BT_SEL 0     &bt BT_SEL 1     &bt BT_SEL 2     &bt BT_SEL 3  &bt BT_SEL 4                                &kp F10        &kp F11  &kp F12  &euro_euro      &slash_qmark        &kp DEL
+&out OUT_TOG      &trans           &kp UP_ARROW     &trans           &trans        &trans                                      &kp F7         &kp F8   &kp F9   &mu_mu          &pound_pound        &kp C_AL_SCREEN_SAVER
+&kp LSHFT         &kp LEFT_ARROW   &kp DOWN_ARROW   &kp RIGHT_ARROW  &trans        &trans                                      &kp F4         &kp F5   &kp F6   &bslash_tilde   &kp UP_ARROW        &kp PRINTSCREEN
+&kp LCTRL         &trans           &trans           &trans           &trans        &trans        &kp C_MUTE    &rgb_ug RGB_TOG &kp F1         &kp F2   &kp F3   &kp LEFT_ARROW  &kp DOWN_ARROW      &kp RIGHT_ARROW
+                                   &trans           &trans           &trans        &trans        &trans        &trans          &trans         &trans   &trans   &trans
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp RGB_BRI RGB_BRD>;
