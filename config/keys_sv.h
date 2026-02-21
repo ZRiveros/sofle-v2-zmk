@@ -1,84 +1,337 @@
 /*
- * Copyright (c) 2025 The ZMK Contributors
+ * Localized Keys for Swedish
+ *
+ * This file was generated from data with the following license:
+ *
+ * UNICODE, INC. LICENSE AGREEMENT - DATA FILES AND SOFTWARE
  * 
- * Localized Keys for Swedish (Sweden) QWERTY Layout
- * Based on Swedish keyboard layout (sv-SE)
+ * See Terms of Use <https://www.unicode.org/copyright.html>
+ * for definitions of Unicode Inc.'s Data Files and Software.
  * 
- * SPDX-License-Identifier: MIT
+ * NOTICE TO USER: Carefully read the following legal agreement.
+ * BY DOWNLOADING, INSTALLING, COPYING OR OTHERWISE USING UNICODE INC.'S
+ * DATA FILES ("DATA FILES"), AND/OR SOFTWARE ("SOFTWARE"),
+ * YOU UNEQUIVOCALLY ACCEPT, AND AGREE TO BE BOUND BY, ALL OF THE
+ * TERMS AND CONDITIONS OF THIS AGREEMENT.
+ * IF YOU DO NOT AGREE, DO NOT DOWNLOAD, INSTALL, COPY, DISTRIBUTE OR USE
+ * THE DATA FILES OR SOFTWARE.
+ * 
+ * COPYRIGHT AND PERMISSION NOTICE
+ * 
+ * Copyright © 1991-2023 Unicode, Inc. All rights reserved.
+ * Distributed under the Terms of Use in https://www.unicode.org/copyright.html.
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of the Unicode data files and any associated documentation
+ * (the "Data Files") or Unicode software and any associated documentation
+ * (the "Software") to deal in the Data Files or Software
+ * without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, and/or sell copies of
+ * the Data Files or Software, and to permit persons to whom the Data Files
+ * or Software are furnished to do so, provided that either
+ * (a) this copyright and permission notice appear with all copies
+ * of the Data Files or Software, or
+ * (b) this copyright and permission notice appear in associated
+ * Documentation.
+ * 
+ * THE DATA FILES AND SOFTWARE ARE PROVIDED "AS IS", WITHOUT WARRANTY OF
+ * ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT OF THIRD PARTY RIGHTS.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN THIS
+ * NOTICE BE LIABLE FOR ANY CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL
+ * DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
+ * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ * PERFORMANCE OF THE DATA FILES OR SOFTWARE.
+ * 
+ * Except as contained in this notice, the name of a copyright holder
+ * shall not be used in advertising or otherwise to promote the sale,
+ * use or other dealings in these Data Files or Software without prior
+ * written authorization of the copyright holder.
  */
 
 #pragma once
 
-#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/hid_usage.h>
+#include <dt-bindings/zmk/hid_usage_pages.h>
+#include <dt-bindings/zmk/modifiers.h>
 
-// Row 1 (Numbers and symbols)
-#define SV_N1       N1         // 1
-#define SV_N2       N2         // 2
-#define SV_N3       N3         // 3
-#define SV_N4       N4         // 4
-#define SV_N5       N5         // 5
-#define SV_N6       N6         // 6
-#define SV_N7       N7         // 7
-#define SV_N8       N8         // 8
-#define SV_N9       N9         // 9
-#define SV_N0       N0         // 0
+#define SV_ESCAPE_CHARACTER (LC(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_LEFT_BRACKET_AND_LEFT_BRACE)))
 
-// US-style shifted symbols (for MBK Choc Glow keycaps)
-#define SV_EXCL     LS(N1)     // !
-#define SV_AT       RA(N2)     // @
-#define SV_HASH     LS(N3)     // #
-#define SV_DLLR     RA(N4)     // $
-#define SV_PRCNT    LS(N5)     // %
-#define SV_CARET    LS(RBKT)   // ^
-#define SV_AMPS     LS(N6)     // &
-#define SV_STAR     LS(BSLH)   // *
-#define SV_LPAR     LS(N8)     // (
-#define SV_RPAR     LS(N9)     // )
+#define SV_FILE_SEPARATOR (LC(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_GRAVE_ACCENT_AND_TILDE)))
 
-// Swedish letters
-#define SV_A_RING   LBKT       // Å
-#define SV_A_UMLAUT APOS       // Ä
-#define SV_O_UMLAUT SEMI       // Ö
+#define SV_GROUP_SEPARATOR (LC(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_RIGHT_BRACKET_AND_RIGHT_BRACE)))
 
-// Brackets and braces
-#define SV_LBKT     RA(N8)     // [
-#define SV_RBKT     RA(N9)     // ]
-#define SV_LBRC     RA(N7)     // {
-#define SV_RBRC     RA(N0)     // }
+#define SV_SPACE (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_SPACEBAR))
 
-// Punctuation
-#define SV_COMMA    COMMA      // ,
-#define SV_DOT      DOT        // .
-#define SV_SEMI     LS(COMMA)  // ;
-#define SV_COLON    LS(DOT)    // :
+/* ! */
+#define SV_EXCLAMATION (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_1_AND_EXCLAMATION)))
+#define SV_EXCL (SV_EXCLAMATION)
 
-// Math and comparison
-#define SV_PLUS     MINUS      // +
-#define SV_MINUS    FSLH       // -
-#define SV_EQUAL    LS(N0)     // =
-#define SV_UNDER    LS(FSLH)   // _
-#define SV_LT       LS(COMMA)  // <
-#define SV_GT       LS(DOT)    // >
+/* " */
+#define SV_DOUBLE_QUOTES (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_2_AND_AT)))
+#define SV_DQT (SV_DOUBLE_QUOTES)
 
-// Quotes
-#define SV_SQT      BSLH       // '
-#define SV_DQT      LS(N2)     // "
+/* # */
+#define SV_HASH (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_3_AND_HASH)))
+#define SV_POUND (SV_HASH)
 
-// Slashes and backslash
-#define SV_FSLH     LS(N7)     // /
-#define SV_BSLH     RA(MINUS)  // backslash
-#define SV_QUESTION LS(MINUS)  // ?
-#define SV_PIPE     RA(NUBS)   // |
+/* $ */
+#define SV_DOLLAR (RA(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_4_AND_DOLLAR)))
+#define SV_DLLR (SV_DOLLAR)
 
-// Tilde
-#define SV_TILDE    RA(RBKT)   // ~
+/* % */
+#define SV_PERCENT (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_5_AND_PERCENT)))
+#define SV_PRCNT (SV_PERCENT)
 
-// Other symbols
-#define SV_GRAVE    LS(EQUAL)  // `
-#define SV_AT_SIGN  RA(N2)     // @
-#define SV_EURO     RA(E)      // €
-#define SV_POUND_SIGN RA(N3)   // £
-#define SV_MU       RA(M)      // µ
+/* & */
+#define SV_AMPERSAND (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_6_AND_CARET)))
+#define SV_AMPS (SV_AMPERSAND)
+
+/* ' */
+#define SV_SINGLE_QUOTE (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_BACKSLASH_AND_PIPE))
+#define SV_SQT (SV_SINGLE_QUOTE)
+#define SV_APOSTROPHE (SV_SINGLE_QUOTE)
+#define SV_APOS (SV_SINGLE_QUOTE)
+
+/* ( */
+#define SV_LEFT_PARENTHESIS (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_8_AND_ASTERISK)))
+#define SV_LPAR (SV_LEFT_PARENTHESIS)
+
+/* ) */
+#define SV_RIGHT_PARENTHESIS (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_9_AND_LEFT_PARENTHESIS)))
+#define SV_RPAR (SV_RIGHT_PARENTHESIS)
+
+/* * */
+#define SV_ASTERISK (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_BACKSLASH_AND_PIPE)))
+#define SV_ASTRK (SV_ASTERISK)
+#define SV_STAR (SV_ASTERISK)
+
+/* + */
+#define SV_PLUS (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_MINUS_AND_UNDERSCORE))
+
+/* , */
+#define SV_COMMA (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_COMMA_AND_LESS_THAN))
+
+/* - */
+#define SV_MINUS (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_SLASH_AND_QUESTION_MARK))
+#define SV_FSLH (SV_SLASH)
+
+/* . */
+#define SV_PERIOD (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_PERIOD_AND_GREATER_THAN))
+#define SV_DOT (SV_PERIOD)
+
+/* / */
+#define SV_SLASH (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_7_AND_AMPERSAND)))
+#define SV_FSLH (SV_SLASH)
+
+/* 0 */
+#define SV_N0 (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_0_AND_RIGHT_PARENTHESIS))
+
+/* 1 */
+#define SV_N1 (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_1_AND_EXCLAMATION))
+
+/* 2 */
+#define SV_N2 (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_2_AND_AT))
+
+/* 3 */
+#define SV_N3 (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_3_AND_HASH))
+
+/* 4 */
+#define SV_N4 (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_4_AND_DOLLAR))
+
+/* 5 */
+#define SV_N5 (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_5_AND_PERCENT))
+
+/* 6 */
+#define SV_N6 (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_6_AND_CARET))
+
+/* 7 */
+#define SV_N7 (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_7_AND_AMPERSAND))
+
+/* 8 */
+#define SV_N8 (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_8_AND_ASTERISK))
+
+/* 9 */
+#define SV_N9 (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_9_AND_LEFT_PARENTHESIS))
+
+/* : */
+#define SV_COLON (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_PERIOD_AND_GREATER_THAN)))
+
+/* ; */
+#define SV_SEMICOLON (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_COMMA_AND_LESS_THAN)))
+#define SV_SEMI (SV_SEMICOLON)
+
+/* < */
+#define SV_LESS_THAN (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_NON_US_BACKSLASH_AND_PIPE))
+#define SV_LT (SV_LESS_THAN)
+
+/* = */
+#define SV_EQUAL (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_0_AND_RIGHT_PARENTHESIS)))
+
+/* > */
+#define SV_GREATER_THAN (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_NON_US_BACKSLASH_AND_PIPE)))
+#define SV_GT (SV_GREATER_THAN)
+
+/* ? */
+#define SV_QUESTION (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_MINUS_AND_UNDERSCORE)))
+#define SV_QMARK (SV_QUESTION)
+
+/* @ */
+#define SV_AT_SIGN (RA(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_2_AND_AT)))
+#define SV_AT (SV_AT_SIGN)
+
+/* [ */
+#define SV_LEFT_BRACKET (RA(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_8_AND_ASTERISK)))
+#define SV_LBKT (SV_LEFT_BRACKET)
+
+/* \ */
+#define SV_BACKSLASH (RA(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_MINUS_AND_UNDERSCORE)))
+#define SV_BSLH (SV_BACKSLASH)
+
+/* ] */
+#define SV_RIGHT_BRACKET (RA(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_9_AND_LEFT_PARENTHESIS)))
+#define SV_RBKT (SV_RIGHT_BRACKET)
+
+/* ^ */
+#define SV_CARET (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_RIGHT_BRACKET_AND_RIGHT_BRACE)))
+
+/* _ */
+#define SV_UNDERSCORE (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_SLASH_AND_QUESTION_MARK)))
+#define SV_UNDER (SV_UNDERSCORE)
+
+/* ` */
+#define SV_GRAVE (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_EQUAL_AND_PLUS)))
+
+/* a */
+#define SV_A (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_A))
+
+/* b */
+#define SV_B (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_B))
+
+/* c */
+#define SV_C (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_C))
+
+/* d */
+#define SV_D (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_D))
+
+/* e */
+#define SV_E (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_E))
+
+/* f */
+#define SV_F (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_F))
+
+/* g */
+#define SV_G (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_G))
+
+/* h */
+#define SV_H (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_H))
+
+/* i */
+#define SV_I (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_I))
+
+/* j */
+#define SV_J (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_J))
+
+/* k */
+#define SV_K (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_K))
+
+/* l */
+#define SV_L (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_L))
+
+/* m */
+#define SV_M (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_M))
+
+/* n */
+#define SV_N (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_N))
+
+/* o */
+#define SV_O (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_O))
+
+/* p */
+#define SV_P (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_P))
+
+/* q */
+#define SV_Q (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_Q))
+
+/* r */
+#define SV_R (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_R))
+
+/* s */
+#define SV_S (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_S))
+
+/* t */
+#define SV_T (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_T))
+
+/* u */
+#define SV_U (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_U))
+
+/* v */
+#define SV_V (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_V))
+
+/* w */
+#define SV_W (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_W))
+
+/* x */
+#define SV_X (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_X))
+
+/* y */
+#define SV_Y (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_Y))
+
+/* z */
+#define SV_Z (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_Z))
+
+/* { */
+#define SV_LEFT_BRACE (RA(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_7_AND_AMPERSAND)))
+#define SV_LBRC (SV_LEFT_BRACE)
+
+/* | */
+#define SV_PIPE (RA(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_NON_US_BACKSLASH_AND_PIPE)))
+
+/* } */
+#define SV_RIGHT_BRACE (RA(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_0_AND_RIGHT_PARENTHESIS)))
+#define SV_RBRC (SV_RIGHT_BRACE)
+
+/* ~ */
+#define SV_TILDE (RA(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_RIGHT_BRACKET_AND_RIGHT_BRACE)))
+
+/* £ */
+#define SV_POUND_SIGN (RA(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_3_AND_HASH)))
+
+/* ¤ */
+#define SV_CURRENCY_SIGN (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_4_AND_DOLLAR)))
+#define SV_CURREN (SV_CURRENCY_SIGN)
+
+/* § */
+#define SV_SECTION (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_GRAVE_ACCENT_AND_TILDE))
+#define SV_SECT (SV_SECTION)
+
+/* ¨ */
+#define SV_UMLAUT (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_RIGHT_BRACKET_AND_RIGHT_BRACE))
+
+/* ´ */
+#define SV_ACUTE (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_EQUAL_AND_PLUS))
+
+/* µ */
+#define SV_MU (RA(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_M)))
+#define SV_MICRO (SV_MU)
+
+/* ½ */
+#define SV_ONE_HALF (LS(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_GRAVE_ACCENT_AND_TILDE)))
+#define SV_FRAC_1_2 (SV_ONE_HALF)
+
+/* ä */
+#define SV_A_UMLAUT (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_APOSTROPHE_AND_QUOTE))
+
+/* å */
+#define SV_A_RING (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_LEFT_BRACKET_AND_LEFT_BRACE))
+
+/* ö */
+#define SV_O_UMLAUT (ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_SEMICOLON_AND_COLON))
+
+/* € */
+#define SV_EURO (RA(ZMK_HID_USAGE(HID_USAGE_KEY, HID_USAGE_KEY_KEYBOARD_5_AND_PERCENT)))
 
 // Convenience aliases (match ZMK naming)
 #define SV_AA       SV_A_RING
