@@ -1,8 +1,6 @@
 /*
  * Copyright (c) 2025 The ZMK Contributors
  * SPDX-License-Identifier: MIT
- * 
- * SIMPLIFIED TEST KEYMAP FOR AURORA SOFLE - NO BEHAVIORS
  */
 
 #include <behaviors.dtsi>
@@ -10,72 +8,12 @@
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/rgb.h>
 #include <dt-bindings/zmk/outputs.h>
-#include "splitkb_aurora_sofle.dtsi"
+#include "keys_sv.h"
 
 / {
-    keymap {
-        compatible = "zmk,keymap";
+    // ---------- Behaviors ----------
 
-        default_layer {
-            display-name = "Base";
-            bindings = <
-&kp ESC   &kp N1   &kp N2   &kp N3   &kp N4   &kp N5                                &kp N6   &kp N7   &kp N8    &kp N9   &kp N0    &kp BSPC
-&kp TAB   &kp Q    &kp W    &kp E    &kp R    &kp T                                 &kp Y    &kp U    &kp I     &kp O    &kp P     &kp LBKT
-&kp LSHFT &kp A    &kp S    &kp D    &kp F    &kp G                                 &kp H    &kp J    &kp K     &kp L    &kp SEMI  &kp APOS
-&kp LCTRL &kp Z    &kp X    &kp C    &kp V    &kp B      &kp C_MUTE  &rgb_ug RGB_TOG &kp N    &kp M    &kp COMMA &kp DOT  &kp FSLH  &kp RSHFT
-                            &kp LGUI &kp LALT &mo 1      &kp SPACE   &kp RET         &mo 2    &kp BSPC &kp RGUI  &kp RALT
-            >;
-
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp RGB_BRI RGB_BRD>;
-        };
-
-        lower_layer {
-            display-name = "Lower";
-            bindings = <
-&bt BT_CLR     &bt BT_SEL 0   &bt BT_SEL 1   &bt BT_SEL 2   &bt BT_SEL 3   &bt BT_SEL 4                        &kp F6    &kp F7    &kp F8   &kp F9    &kp F10  &kp DEL
-&out OUT_TOG   &kp EXCL       &kp AT         &kp HASH       &kp DLLR       &kp PRCNT                           &kp CARET &kp AMPS  &kp STAR &kp LPAR  &kp RPAR &kp F11
-&kp LSHFT      &trans         &trans         &trans         &trans         &trans                              &kp LEFT  &kp DOWN  &kp UP   &kp RIGHT &trans   &kp F12
-&kp LCTRL      &trans         &trans         &trans         &trans         &trans       &trans      &trans     &trans    &trans    &trans   &trans    &trans   &trans
-                              &trans         &trans         &trans         &trans       &trans      &trans     &trans    &mo 3     &trans   &trans
-            >;
-
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp C_VOL_UP C_VOL_DN>;
-        };
-
-        raise_layer {
-            display-name = "Raise";
-            bindings = <
-&kp GRAVE &kp F1   &kp F2   &kp F3   &kp F4   &kp F5                              &kp F6   &kp F7   &kp F8   &kp F9   &kp F10  &kp F11
-&trans    &kp N1   &kp N2   &kp N3   &kp N4   &kp N5                              &kp N6   &kp N7   &kp N8   &kp N9   &kp N0   &kp F12
-&kp LSHFT &trans   &trans   &trans   &trans   &trans                              &trans   &trans   &trans   &trans   &trans   &trans
-&kp LCTRL &trans   &trans   &trans   &trans   &trans   &trans        &trans       &trans   &trans   &trans   &trans   &trans   &trans
-                                      &trans   &mo 3    &trans        &trans       &trans   &trans   &trans   &trans
-            >;
-
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp RGB_BRI RGB_BRD>;
-        };
-
-        adjust_layer {
-            display-name = "Adjust";
-            bindings = <
-&bt BT_CLR &bt BT_SEL 0      &bt BT_SEL 1      &bt BT_SEL 2      &bt BT_SEL 3 &bt BT_SEL 4                         &trans &trans &trans &trans &trans &sys_reset
-&trans     &rgb_ug RGB_TOG   &rgb_ug RGB_HUI   &rgb_ug RGB_SAI   &rgb_ug RGB_BRI &rgb_ug RGB_SPI                   &trans &trans &trans &trans &trans &trans
-&trans     &rgb_ug RGB_EFF   &rgb_ug RGB_HUD   &rgb_ug RGB_SAD   &rgb_ug RGB_BRD &rgb_ug RGB_SPD                   &trans &trans &trans &trans &trans &trans
-&trans     &trans            &trans            &trans            &trans       &trans       &trans   &trans          &trans &trans &trans &trans &trans &bootloader
-                             &trans            &trans            &trans       &trans       &trans   &trans          &trans &trans &trans &trans
-            >;
-
-            sensor-bindings = <&inc_dec_kp RGB_BRI RGB_BRD &inc_dec_kp C_VOL_UP C_VOL_DN>;
-        };
-    };
-
-    sensors {
-        compatible = "zmk,keymap-sensors";
-        sensors = <&left_encoder &right_encoder>;
-        triggers-per-rotation = <20>;
-    };
-};
-
+    behaviors {
         // Brackets
 
         lbkt_lbrc: bracket_brace_left {
