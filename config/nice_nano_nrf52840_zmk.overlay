@@ -1,9 +1,9 @@
-                                                    1ewffev ccvd/*
+/*
  * Copyright (c) 2025 The ZMK Contributors
  * SPDX-License-Identifier: MIT
  * 
- * Aurora Sofle with OLED + RGB for nice!nano v2
- * Based on upstream but adds OLED support
+ * Aurora Sofle RGB for nice!nano v2
+ * OLED is defined in shield-specific overlays
  */
 
 #include <dt-bindings/led/led.h>
@@ -24,27 +24,6 @@
     };
 };
 
-// Enable I2C for OLED
-&pro_micro_i2c {
-    status = "okay";
-
-    oled: ssd1306@3c {
-        compatible = "solomon,ssd1306fb";
-        reg = <0x3c>;
-        width = <128>;
-        height = <32>;
-        segment-offset = <0>;
-        page-offset = <0>;
-        display-offset = <0>;
-        multiplex-ratio = <31>;
-        segment-remap;
-        com-invdir;
-        com-sequential;
-        inversion-on;
-        prechargep = <0x22>;
-    };
-};
-
 // Enable SPI for RGB LEDs
 &spi3 {
     compatible = "nordic,nrf-spim";
@@ -59,7 +38,7 @@
         reg = <0>;
         spi-max-frequency = <4000000>;
         
-        // Aurora Sofle has 29 per-key + 6 underglow = 35 total per side
+        // Aurora Sofle: 35 LEDs per side (29 per-key + 6 underglow)
         chain-length = <35>;
         
         spi-one-frame = <0x70>;
@@ -71,6 +50,5 @@
 / {
     chosen {
         zmk,underglow = &led_strip;
-        zmk,display = &oled;
     };
 };
