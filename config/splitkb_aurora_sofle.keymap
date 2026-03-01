@@ -12,7 +12,7 @@
 #include "keys_sv.h"
 
 &led_strip {
-    chain-length = <35>; // 29 per-key + 6 underglow per side
+    chain-length = <29>; // Only per-key LEDs, no underglow
 };
 
 / {
@@ -193,7 +193,7 @@
                      &kp LCMD  &kp LALT  &mo 1   &lbkt_lbrc  &kp SPACE     &kp ENTER        &rbkt_rbrc   &sqt_dqt     &semi_colon &plus_equal
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp C_BRI_UP C_BRI_DN>;
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp RGB_BRI RGB_BRD>;
         };
 
         raise_layer {
@@ -212,7 +212,7 @@
                           &trans        &trans        &trans        &trans        &trans        &trans           &trans   &trans   &trans   &trans
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp C_BRI_UP C_BRI_DN>;
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp RGB_BRI RGB_BRD>;
         };
     };
 };
