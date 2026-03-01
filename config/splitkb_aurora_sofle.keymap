@@ -11,6 +11,10 @@
 #include <dt-bindings/zmk/rgb.h>
 #include "keys_sv.h"
 
+&led_strip {
+    chain-length = <35>; // 29 per-key + 6 underglow per side
+};
+
 / {
     // ---------- Behaviors ----------
 
