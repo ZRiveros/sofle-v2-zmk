@@ -183,17 +183,17 @@
 // |  ESC  |  1! |  2@ |  3#  |  4$  |  5%  |                   |  6^  |  7&  |  8*  |  9(  |  0)  | BSPC  |
 // |  TAB  |  Q  |  W  |  E   |  R   |  T   |                   |  Y   |  U   |  I   |  O   |  P   |   Å   |
 // | SHIFT |  A  |  S  |  D   |  F   |  G   |                   |  H   |  J   |  K   |  L   |  Ö   |   Ä   |
-// | CTRL  |  Z  |  X  |  C   |  V   |  B   | MUTE  |  | RGBTOG|  N   |  M   |  ,<  |  .>  |  /?  |  -_   |
+// | CTRL  |  Z  |  X  |  C   |  V   |  B   | MUTE  |  | PGUP  |  N   |  M   |  ,<  |  .>  |  /?  |  -_   |
 //               | CMD | ALT  |RAISE | [{   | SPACE |  | ENTER | ]}   |  '"  |  ;:  |  +=  |
             bindings = <
 &kp ESC    &n1_excl  &n2_at  &n3_hash  &n4_dllr  &n5_prcnt                                  &n6_caret    &n7_amps     &n8_star   &n9_lpar  &n0_rpar         &kp BACKSPACE
 &kp TAB    &kp Q     &kp W   &kp E     &kp R     &kp T                                      &kp Y        &kp U        &kp I      &kp O     &kp P            &kp SV_A_RING
 &kp LSHFT  &kp A     &kp S   &kp D     &kp F     &kp G                                      &kp H        &kp J        &kp K      &kp L     &kp SV_O_UMLAUT  &kp SV_A_UMLAUT
-&kp LCTRL  &kp Z     &kp X   &kp C     &kp V     &kp B       &kp C_MUTE    &rgb_ug RGB_TOG  &kp N        &kp M        &comma_lt  &dot_gt   &slash_qmark     &minus_under
+&kp LCTRL  &kp Z     &kp X   &kp C     &kp V     &kp B       &kp C_MUTE    &kp PG_UP        &kp N        &kp M        &comma_lt  &dot_gt   &slash_qmark     &minus_under
                      &kp LCMD  &kp LALT  &mo 1   &lbkt_lbrc  &kp SPACE     &kp ENTER        &rbkt_rbrc   &sqt_dqt     &semi_colon &plus_equal
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp C_BRI_UP C_BRI_DN>;
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
         };
 
         raise_layer {
@@ -202,17 +202,17 @@
 // | BTCLR | BT0 | BT1  | BT2  | BT3  | BT4  |                   | F10  | F11  | F12  |      |      |  DEL  |
 // |       |     |  ↑   |      |      |      |                   |  F7  |  F8  |  F9  |      |      | PSCRN |
 // | SHIFT |  ←  |  ↓   |  →   |      |      |                   |  F4  |  F5  |  F6  |      |  ↑   |       |
-// | CTRL  |     |      |      |      |      | MUTE  |  | RGBTOG|  F1  |  F2  |  F3  |  ←   |  ↓   |   →   |
+// | CTRL  |     |      |      |      |      | MUTE  |  | PGUP  |  F1  |  F2  |  F3  |  ←   |  ↓   |   →   |
 //               |     |      |      |      |       |  |        |      |      |      |      |
             bindings = <
 &bt BT_CLR  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4                         &kp F10  &kp F11  &kp F12  &trans    &trans    &kp DEL
 &trans      &trans        &kp UP        &trans        &trans        &trans                               &kp F7   &kp F8   &kp F9   &trans    &trans    &kp PSCRN
 &kp LSHFT   &kp LEFT      &kp DOWN      &kp RIGHT     &trans        &trans                               &kp F4   &kp F5   &kp F6   &trans    &kp UP    &trans
-&kp LCTRL   &trans        &trans        &trans        &trans        &trans        &kp C_MUTE    &rgb_ug RGB_TOG  &kp F1   &kp F2   &kp F3   &kp LEFT  &kp DOWN  &kp RIGHT
+&kp LCTRL   &trans        &trans        &trans        &trans        &trans        &kp C_MUTE    &kp PG_UP        &kp F1   &kp F2   &kp F3   &kp LEFT  &kp DOWN  &kp RIGHT
                           &trans        &trans        &trans        &trans        &trans        &trans           &trans   &trans   &trans   &trans
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp C_BRI_UP C_BRI_DN>;
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
         };
     };
 };
