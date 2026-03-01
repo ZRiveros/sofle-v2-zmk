@@ -11,9 +11,8 @@
 #include <dt-bindings/zmk/rgb.h>
 #include "keys_sv.h"
 
-&led_strip {
-    chain-length = <29>; // Only per-key LEDs, no underglow
-};
+// Note: chain-length override causes devicetree bug in commit 73ca365
+// Using default = 35 LEDs (29 per-key + 6 underglow, hidden in 3D case anyway)
 
 / {
     // ---------- Behaviors ----------
