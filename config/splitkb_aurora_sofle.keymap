@@ -11,7 +11,7 @@
 #include <dt-bindings/zmk/rgb.h>
 #include "keys_sv.h"
 
-// Right encoder: Rotate = brightness 0-50%, Press = ON/OFF toggle
+// Right encoder: Press = RGB toggle, Rotate = Page Up/Down
 
 / {
     // ---------- Behaviors ----------
@@ -191,7 +191,7 @@
                      &kp LCMD  &kp LALT  &mo 1   &lbkt_lbrc  &kp SPACE     &kp ENTER        &rbkt_rbrc   &sqt_dqt     &semi_colon &plus_equal
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp RGB_BRI RGB_BRD>;
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
         };
 
         raise_layer {
@@ -210,7 +210,7 @@
                           &trans        &trans        &trans        &trans        &trans        &trans           &trans   &trans   &trans   &trans
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp RGB_BRI RGB_BRD>;
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
         };
     };
 };
