@@ -46,7 +46,7 @@ layers:
   - V
   - B
   - MUTE
-  - RGB TOG
+  - PG UP
   - N
   - M
   - {t: '(ZMK HID USAGE(HID USAGE KEY, HID USAGE KEY KEYBOARD COMMA AND LESS THAN))', s: '((ZMK HID USAGE(HID USAGE KEY, HID USAGE KEY KEYBOARD NON US BACKSLASH AND
@@ -112,7 +112,7 @@ layers:
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - MUTE
-  - RGB TOG
+  - PG UP
   - F1
   - F2
   - F3
