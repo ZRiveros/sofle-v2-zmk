@@ -11,8 +11,7 @@
 #include <dt-bindings/zmk/rgb.h>
 #include "keys_sv.h"
 
-// Note: chain-length override causes devicetree bug in commit 73ca365
-// Using default = 35 LEDs (29 per-key + 6 underglow, hidden in 3D case anyway)
+// Right encoder: Rotate = brightness 0-50%, Press = ON/OFF toggle
 
 / {
     // ---------- Behaviors ----------
