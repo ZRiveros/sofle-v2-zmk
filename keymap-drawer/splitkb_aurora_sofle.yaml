@@ -106,10 +106,10 @@ layers:
   - UP
   - {t: ▽, type: trans}
   - LCTRL
-  - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
+  - RGB TOG
+  - '&bl BL_TOG'
+  - '&bl BL_INC'
+  - '&bl BL_DEC'
   - {t: ▽, type: trans}
   - MUTE
   - PG UP
