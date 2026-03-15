@@ -107,9 +107,9 @@ layers:
   - {t: ▽, type: trans}
   - LCTRL
   - RGB TOG
-  - '&bl BL_TOG'
-  - '&bl BL_INC'
-  - '&bl BL_DEC'
+  - RGB EFF
+  - RGB BRI
+  - RGB BRD
   - {t: ▽, type: trans}
   - MUTE
   - PG UP
