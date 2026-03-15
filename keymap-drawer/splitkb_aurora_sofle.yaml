@@ -107,7 +107,7 @@ layers:
   - {t: ▽, type: trans}
   - LCTRL
   - RGB TOG
-  - RGB EFF
+  - EP TOG
   - RGB BRI
   - RGB BRD
   - {t: ▽, type: trans}
