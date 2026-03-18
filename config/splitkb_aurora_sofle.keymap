@@ -194,7 +194,7 @@
                      &kp LCMD  &kp LALT  &mo 1   &lbkt_lbrc  &kp SPACE     &kp ENTER        &rbkt_rbrc   &sqt_dqt     &semi_colon &plus_equal
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp C_AC_SCROLL_DOWN C_AC_SCROLL_UP>;
+            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp LC(Y) LC(Z)>;
         };
 
         raise_layer {
@@ -213,7 +213,7 @@
                           &trans        &trans        &trans        &trans        &trans        &trans           &trans   &trans   &trans   &trans
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp C_AC_SCROLL_DOWN C_AC_SCROLL_UP>;
+            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp LC(Y) LC(Z)>;
         };
     };
 };
