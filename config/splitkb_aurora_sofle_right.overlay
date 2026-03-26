@@ -1,0 +1,36 @@
+/* Touchpad on right side — Azoteq IQS5xx (TPS43) via I2C */
+/* IRQ on D0 (pro_micro pin 0) */
+
+/ {
+    tps43_input: tps43_input {
+        compatible = "zmk,input-listener";
+        device = <&tps43>;
+    };
+};
+
+&pro_micro_i2c {
+    status = "okay";
+
+    tps43: iqs5xx@74 {
+        status = "okay";
+        compatible = "azoteq,iqs5xx";
+        reg = <0x74>;
+
+        rdy-gpios = <&pro_micro 0 GPIO_ACTIVE_HIGH>;
+
+        one-finger-tap;
+        press-and-hold;
+        press-and-hold-time = <250>;
+        two-finger-tap;
+
+        scroll;
+        natural-scroll-y;
+    };
+};
+
+/* Disable OLED on right side */
+&pro_micro_i2c {
+    oled: ssd1306@3c {
+        status = "disabled";
+    };
+};
