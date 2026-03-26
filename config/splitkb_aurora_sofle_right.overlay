@@ -27,10 +27,3 @@
         natural-scroll-y;
     };
 };
-
-/* Disable OLED on right side */
-&pro_micro_i2c {
-    oled: ssd1306@3c {
-        status = "disabled";
-    };
-};
