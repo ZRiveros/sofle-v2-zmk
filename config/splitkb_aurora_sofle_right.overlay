@@ -1,6 +1,6 @@
-/* Touchpad on right side — Azoteq IQS5xx (TPS43) via I2C */
-/* IRQ on D0 (pro_micro pin 0) */
+/* Touchpad DISABLED for testing — uncomment below to re-enable */
 
+/*
 / {
     tps43_input: tps43_input {
         compatible = "zmk,input-listener";
@@ -27,3 +27,4 @@
         natural-scroll-y;
     };
 };
+*/
