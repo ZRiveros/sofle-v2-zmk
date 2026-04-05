@@ -1,6 +1,3 @@
-/* Touchpad DISABLED for testing — uncomment below to re-enable */
-
-/*
 / {
     tps43_input: tps43_input {
         compatible = "zmk,input-listener";
@@ -12,11 +9,11 @@
     status = "okay";
 
     tps43: iqs5xx@74 {
-        status = "okay";
         compatible = "azoteq,iqs5xx";
         reg = <0x74>;
 
-        rdy-gpios = <&pro_micro 0 GPIO_ACTIVE_HIGH>;
+        // 🔴 COMMENT THIS OUT FOR NOW
+        // rdy-gpios = <&pro_micro 0 GPIO_ACTIVE_HIGH>;
 
         one-finger-tap;
         press-and-hold;
@@ -27,4 +24,3 @@
         natural-scroll-y;
     };
 };
-*/
