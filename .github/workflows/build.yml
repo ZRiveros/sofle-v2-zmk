@@ -12,9 +12,7 @@ permissions:
 
 jobs:
   build:
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3
-    with:
-      zmk_extra_modules: modules/zmk-driver-azoteq-iqs5xx
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
 
   create_release_master:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
