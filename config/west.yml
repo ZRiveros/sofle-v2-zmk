@@ -4,7 +4,6 @@ manifest:
       url-base: https://github.com/zmkfirmware
     - name: AYM1607
       url-base: https://github.com/AYM1607
-      path: modules/zmk-driver-azoteq-iqs5xx
   projects:
     - name: zmk
       remote: zmkfirmware
@@ -13,5 +12,6 @@ manifest:
     - name: zmk-driver-azoteq-iqs5xx
       remote: AYM1607
       revision: main
+      path: modules/zmk-driver-azoteq-iqs5xx
   self:
     path: config
