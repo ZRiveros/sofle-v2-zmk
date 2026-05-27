@@ -82,9 +82,16 @@ static void iqs5xx_work_handler(struct k_work *work) {
     uint8_t sys_info_0, sys_info_1, gesture_events_0, gesture_events_1, num_fingers;
     int ret;
 
-    // Read system info registers.
+    /*
+     * In polling mode, the chip NACKs I2C outside its communication window.
+     * This is normal — just silently bail and try again next poll cycle.
+     */
     ret = iqs5xx_read_reg8(dev, IQS5XX_SYSTEM_INFO_0, &sys_info_0);
     if (ret < 0) {
+        /* NACK is expected in polling mode — not an error */
+        if (!config->rdy_gpio.port) {
+            return;
+        }
         LOG_ERR("Failed to read system info 0: %d", ret);
         goto end_comm;
     }
@@ -107,7 +114,6 @@ static void iqs5xx_work_handler(struct k_work *work) {
         goto end_comm;
     }
 
-    // Handle reset indication.
     if (sys_info_0 & IQS5XX_SHOW_RESET) {
         LOG_INF("Device reset detected");
         iqs5xx_write_reg8(dev, IQS5XX_SYSTEM_CONTROL_0, IQS5XX_ACK_RESET);
@@ -149,7 +155,6 @@ static void iqs5xx_work_handler(struct k_work *work) {
         }
     }
 
-    // Handle movement and gestures.
     if (hold_became_active) {
         LOG_INF("Hold became active");
         input_report_key(dev, LEFT_BUTTON_CODE, 1, true, K_FOREVER);
@@ -207,8 +212,7 @@ end_comm:
     iqs5xx_end_comm_window(dev);
 }
 
-/* --- Interrupt-driven mode (with RDY pin) --- */
-
+/* --- Interrupt mode (RDY pin) --- */
 static void iqs5xx_rdy_handler(const struct device *port, struct gpio_callback *cb,
                                gpio_port_pins_t pins) {
     struct iqs5xx_data *data = CONTAINER_OF(cb, struct iqs5xx_data, rdy_cb);
@@ -216,8 +220,7 @@ static void iqs5xx_rdy_handler(const struct device *port, struct gpio_callback *
     k_work_submit(&data->work);
 }
 
-/* --- Polling mode (without RDY pin) --- */
-
+/* --- Polling mode (no RDY pin) --- */
 static void iqs5xx_poll_timer_handler(struct k_timer *timer) {
     struct iqs5xx_data *data = CONTAINER_OF(timer, struct iqs5xx_data, poll_timer);
 
@@ -227,14 +230,17 @@ static void iqs5xx_poll_timer_handler(struct k_timer *timer) {
 static int iqs5xx_setup_device(const struct device *dev) {
     const struct iqs5xx_config *config = dev->config;
     int ret;
-    uint8_t sys_config_1 = 0;
 
-    /* In polling mode (no RDY), use streaming mode.
-     * In interrupt mode (with RDY), use event mode. */
+    /*
+     * In polling mode we use streaming mode (no event mode) so
+     * the chip always reports current state when polled.
+     * In interrupt mode we use event mode for efficiency.
+     */
+    uint8_t sys_config_1;
     if (config->rdy_gpio.port) {
         sys_config_1 = IQS5XX_EVENT_MODE | IQS5XX_TP_EVENT | IQS5XX_GESTURE_EVENT;
     } else {
-        /* Streaming mode: no EVENT_MODE bit, but still enable TP and gesture reporting */
+        /* Streaming mode: chip updates registers every report cycle */
         sys_config_1 = IQS5XX_TP_EVENT | IQS5XX_GESTURE_EVENT;
     }
 
@@ -252,7 +258,7 @@ static int iqs5xx_setup_device(const struct device *dev) {
 
     ret = iqs5xx_write_reg8(dev, IQS5XX_STATIONARY_THRESH, config->stationary_threshold);
     if (ret < 0) {
-        LOG_ERR("Failed to set bottom stationary threshold: %d", ret);
+        LOG_ERR("Failed to set stationary threshold: %d", ret);
         return ret;
     }
 
@@ -274,7 +280,7 @@ static int iqs5xx_setup_device(const struct device *dev) {
 
     ret = iqs5xx_write_reg16(dev, IQS5XX_HOLD_TIME, config->press_and_hold_time);
     if (ret < 0) {
-        LOG_ERR("Failed to configure the hold time: %d", ret);
+        LOG_ERR("Failed to configure hold time: %d", ret);
         return ret;
     }
 
@@ -326,7 +332,7 @@ static int iqs5xx_init(const struct device *dev) {
     k_work_init(&data->work, iqs5xx_work_handler);
     k_work_init_delayable(&data->button_release_work, iqs5xx_button_release_work_handler);
 
-    // Configure reset GPIO if available.
+    /* Configure reset GPIO if available */
     if (config->reset_gpio.port) {
         if (!gpio_is_ready_dt(&config->reset_gpio)) {
             LOG_ERR("Reset GPIO not ready");
@@ -346,7 +352,7 @@ static int iqs5xx_init(const struct device *dev) {
     }
 
     if (config->rdy_gpio.port) {
-        /* --- Interrupt mode: use RDY pin --- */
+        /* ===== INTERRUPT MODE (RDY pin available) ===== */
         if (!gpio_is_ready_dt(&config->rdy_gpio)) {
             LOG_ERR("RDY GPIO not ready");
             return -ENODEV;
@@ -373,19 +379,41 @@ static int iqs5xx_init(const struct device *dev) {
 
         LOG_INF("IQS5xx: using interrupt mode (RDY pin)");
     } else {
-        /* --- Polling mode: no RDY pin --- */
+        /* ===== POLLING MODE (no RDY pin) ===== */
+        LOG_INF("IQS5xx: using polling mode (%u ms interval)", config->poll_interval_ms);
         k_timer_init(&data->poll_timer, iqs5xx_poll_timer_handler, NULL);
-        LOG_INF("IQS5xx: using polling mode (interval %d ms)", config->poll_interval_ms);
     }
 
-    // Wait for device to be ready.
+    /* Wait for device to be ready */
     k_msleep(100);
 
-    // Setup device configuration.
-    ret = iqs5xx_setup_device(dev);
-    if (ret < 0) {
-        LOG_ERR("Failed to setup device: %d", ret);
-        return ret;
+    /*
+     * Setup device configuration.
+     * In polling mode, the chip may NACK if we miss its comm window,
+     * so retry setup multiple times with delays between attempts.
+     */
+    if (!config->rdy_gpio.port) {
+        /* Polling mode: retry up to 50 times (~500ms total) */
+        int attempts = 50;
+        for (int i = 0; i < attempts; i++) {
+            ret = iqs5xx_setup_device(dev);
+            if (ret == 0) {
+                LOG_INF("Device setup succeeded on attempt %d", i + 1);
+                break;
+            }
+            k_msleep(10);
+        }
+        if (ret < 0) {
+            LOG_ERR("Failed to setup device after %d attempts: %d", attempts, ret);
+            return ret;
+        }
+    } else {
+        /* Interrupt mode: single attempt (RDY guarantees comm window) */
+        ret = iqs5xx_setup_device(dev);
+        if (ret < 0) {
+            LOG_ERR("Failed to setup device: %d", ret);
+            return ret;
+        }
     }
 
     /* Start polling timer if in polling mode */
@@ -406,6 +434,7 @@ static int iqs5xx_init(const struct device *dev) {
         .i2c = I2C_DT_SPEC_INST_GET(n),                                                            \
         .rdy_gpio = GPIO_DT_SPEC_INST_GET_OR(n, rdy_gpios, {0}),                                  \
         .reset_gpio = GPIO_DT_SPEC_INST_GET_OR(n, reset_gpios, {0}),                               \
+        .poll_interval_ms = DT_INST_PROP_OR(n, poll_interval_ms, 10),                              \
         .one_finger_tap = DT_INST_PROP(n, one_finger_tap),                                         \
         .press_and_hold = DT_INST_PROP(n, press_and_hold),                                         \
         .two_finger_tap = DT_INST_PROP(n, two_finger_tap),                                         \
@@ -418,7 +447,6 @@ static int iqs5xx_init(const struct device *dev) {
         .flip_y = DT_INST_PROP(n, flip_y),                                                         \
         .bottom_beta = DT_INST_PROP_OR(n, bottom_beta, 5),                                         \
         .stationary_threshold = DT_INST_PROP_OR(n, stationary_threshold, 5),                       \
-        .poll_interval_ms = DT_INST_PROP_OR(n, poll_interval_ms, 10),                              \
     };                                                                                             \
     DEVICE_DT_INST_DEFINE(n, iqs5xx_init, NULL, &iqs5xx_data_##n, &iqs5xx_config_##n,              \
                           POST_KERNEL, CONFIG_INPUT_INIT_PRIORITY, NULL);

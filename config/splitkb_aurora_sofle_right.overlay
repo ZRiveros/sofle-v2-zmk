@@ -1,7 +1,14 @@
 / {
-    tps43_input: tps43_input {
-        compatible = "zmk,input-listener";
-        device = <&tps43>;
+    /* Split input: forwards touchpad data from peripheral to central via BLE */
+    split_inputs {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        tps43_split: tps43_split@74 {
+            compatible = "zmk,input-split";
+            reg = <0x74>;
+            device = <&tps43>;
+        };
     };
 };
 
