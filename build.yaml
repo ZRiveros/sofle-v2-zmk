@@ -21,9 +21,12 @@
 include:
   - board: nice_nano//zmk
     shield: splitkb_aurora_sofle_left
+    artifact-name: splitkb_aurora_sofle_left-nice_nano
 
   - board: nice_nano//zmk
     shield: splitkb_aurora_sofle_right
+    artifact-name: splitkb_aurora_sofle_right-nice_nano
 
   - board: nice_nano//zmk
     shield: settings_reset
+    artifact-name: settings_reset-nice_nano
