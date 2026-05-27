@@ -385,7 +385,7 @@ static int iqs5xx_init(const struct device *dev) {
     }
 
     /* Wait for device to be ready */
-    k_msleep(100);
+    k_msleep(500);
 
     /*
      * Setup device configuration.
@@ -393,15 +393,15 @@ static int iqs5xx_init(const struct device *dev) {
      * so retry setup multiple times with delays between attempts.
      */
     if (!config->rdy_gpio.port) {
-        /* Polling mode: retry up to 50 times (~500ms total) */
-        int attempts = 50;
+        /* Polling mode: retry up to 100 times (~1500ms total) */
+        int attempts = 100;
         for (int i = 0; i < attempts; i++) {
             ret = iqs5xx_setup_device(dev);
             if (ret == 0) {
                 LOG_INF("Device setup succeeded on attempt %d", i + 1);
                 break;
             }
-            k_msleep(10);
+            k_msleep(15);
         }
         if (ret < 0) {
             LOG_ERR("Failed to setup device after %d attempts: %d", attempts, ret);
