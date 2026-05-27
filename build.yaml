@@ -21,11 +21,11 @@
 include:
   - board: nice_nano//zmk
     shield: splitkb_aurora_sofle_left
+    snippet: zmk-usb-logging
     artifact-name: splitkb_aurora_sofle_left-nice_nano
 
   - board: nice_nano//zmk
     shield: splitkb_aurora_sofle_right
-    snippet: zmk-usb-logging
     artifact-name: splitkb_aurora_sofle_right-nice_nano
 
   - board: nice_nano//zmk
