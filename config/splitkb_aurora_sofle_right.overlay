@@ -12,13 +12,15 @@
     };
 };
 
+/* Disable OLED — no physical display on right side, driver hogs I2C bus */
+&oled {
+    status = "disabled";
+};
+
 /* Force DMA-capable I2C (TWIM) — non-DMA TWI gets corrupted by BLE radio interrupts */
 &pro_micro_i2c {
     compatible = "nordic,nrf-twim";
     status = "okay";
-
-    /* Disable the OLED driver — it hogs the I2C bus with NACKs if no display is present */
-    /delete-node/ ssd1306@3c;
 
     tps43: iqs5xx@74 {
         compatible = "azoteq,iqs5xx";
