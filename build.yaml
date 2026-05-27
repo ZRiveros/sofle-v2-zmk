@@ -19,11 +19,11 @@
 #
 ---
 include:
-  - board: nice_nano_v2
+  - board: nice_nano//zmk
     shield: splitkb_aurora_sofle_left
 
-  - board: nice_nano_v2
+  - board: nice_nano//zmk
     shield: splitkb_aurora_sofle_right
 
-  - board: nice_nano_v2
+  - board: nice_nano//zmk
     shield: settings_reset
