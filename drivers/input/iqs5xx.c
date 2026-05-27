@@ -226,6 +226,9 @@ static void iqs5xx_poll_timer_handler(struct k_timer *timer) {
 
     k_work_submit(&data->work);
 }
+/* --- Deferred setup: forward declaration --- */
+static int iqs5xx_setup_device(const struct device *dev);
+
 /* --- Deferred setup work handler --- */
 static void iqs5xx_deferred_setup_handler(struct k_work *work) {
     struct k_work_delayable *dwork = k_work_delayable_from_work(work);
