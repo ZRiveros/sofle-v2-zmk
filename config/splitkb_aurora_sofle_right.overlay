@@ -5,21 +5,24 @@
         #size-cells = <0>;
 
         tps43_split: tps43_split@74 {
-            compatible = "zmk,input-split";
+    -------------------å'        compatible = "zmk,input-split";
             reg = <0x74>;
             device = <&tps43>;
         };
     };
+
+    /* Remove display chosen so ZMK display subsystem won't compile */
+    chosen {
+        /delete-property/ zephyr,display;
+    };
 };
 
-/* Disable OLED — no physical display on right side, driver hogs I2C bus */
+/* Disable OLED — frees I2C bus for the touchpad */
 &oled {
     status = "disabled";
 };
 
-/* Force DMA-capable I2C (TWIM) — non-DMA TWI gets corrupted by BLE radio interrupts */
 &pro_micro_i2c {
-    compatible = "nordic,nrf-twim";
     status = "okay";
 
     tps43: iqs5xx@74 {
@@ -27,7 +30,7 @@
         reg = <0x74>;
 
         /* No RDY pin — using polling mode (4 wires only: SDA, SCL, VCC, GND) */
-        poll-interval-ms = <10>;
+        poll-interval-ms = <20>;
 
         one-finger-tap;
         press-and-hold;
@@ -36,5 +39,18 @@
 
         scroll;
         natural-scroll-y;
+        
+        /*
+         * Axis mapping — TPS65 length (65mm) mounted vertically.
+         * Adjust these if axes are swapped or inverted after testing:
+         *   flip-x;       ← invert horizontal
+         *   flip-y;       ← invert vertical
+         *   switch-xy;    ← swap X and Y axes
+         */
+        switch-xy;
+
+        /* Tuning */
+        bottom-beta = <5>;
+        stationary-threshold = <5>;
     };
 };
