@@ -12,7 +12,9 @@
     };
 };
 
+/* Force DMA-capable I2C (TWIM) — non-DMA TWI gets corrupted by BLE radio interrupts */
 &pro_micro_i2c {
+    compatible = "nordic,nrf-twim";
     status = "okay";
 
     tps43: iqs5xx@74 {

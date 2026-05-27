@@ -239,9 +239,9 @@ static void iqs5xx_deferred_setup_handler(struct k_work *work) {
 
     ret = iqs5xx_setup_device(dev);
     if (ret < 0) {
-        /* Device not ready yet, retry in 200ms */
+        /* Device not ready yet, retry in 500ms */
         LOG_DBG("Deferred setup retry (err %d)", ret);
-        k_work_schedule(&data->deferred_setup_work, K_MSEC(200));
+        k_work_schedule(&data->deferred_setup_work, K_MSEC(500));
         return;
     }
 
