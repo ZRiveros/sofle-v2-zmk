@@ -30,7 +30,7 @@
         reg = <0x74>;
 
         /* No RDY pin — using polling mode (4 wires only: SDA, SCL, VCC, GND) */
-        poll-interval-ms = <12>;
+        poll-interval-ms = <20>;
 
         one-finger-tap;
         press-and-hold;
