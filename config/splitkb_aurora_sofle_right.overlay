@@ -12,8 +12,8 @@
         compatible = "azoteq,iqs5xx";
         reg = <0x74>;
 
-        // 🔴 COMMENT THIS OUT FOR NOW
-        // rdy-gpios = <&pro_micro 0 GPIO_ACTIVE_HIGH>;
+        /* No RDY pin — using polling mode (4 wires only: SDA, SCL, VCC, GND) */
+        poll-interval-ms = <10>;
 
         one-finger-tap;
         press-and-hold;
