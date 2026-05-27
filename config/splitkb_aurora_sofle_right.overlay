@@ -30,7 +30,7 @@
         reg = <0x74>;
 
         /* No RDY pin — using polling mode (4 wires only: SDA, SCL, VCC, GND) */
-        poll-interval-ms = <20>;
+        poll-interval-ms = <15>;
 
         one-finger-tap;
         press-and-hold;
@@ -52,7 +52,7 @@
         switch-xy;
 
         /* Tuning */
-        bottom-beta = <3>;
-        stationary-threshold = <3>;
+        bottom-beta = <2>;
+        stationary-threshold = <2>;
     };
 };
