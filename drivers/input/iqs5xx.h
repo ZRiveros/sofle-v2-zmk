@@ -121,6 +121,7 @@ struct iqs5xx_data {
     struct gpio_callback rdy_cb;
     struct k_work work;
     struct k_work_delayable button_release_work;
+    struct k_work_delayable deferred_setup_work;
     struct k_timer poll_timer;
 
     bool initialized;

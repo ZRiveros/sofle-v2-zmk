@@ -226,7 +226,28 @@ static void iqs5xx_poll_timer_handler(struct k_timer *timer) {
 
     k_work_submit(&data->work);
 }
+/* --- Deferred setup work handler --- */
+static void iqs5xx_deferred_setup_handler(struct k_work *work) {
+    struct k_work_delayable *dwork = k_work_delayable_from_work(work);
+    struct iqs5xx_data *data = CONTAINER_OF(dwork, struct iqs5xx_data, deferred_setup_work);
+    const struct device *dev = data->dev;
+    const struct iqs5xx_config *config = dev->config;
+    int ret;
 
+    ret = iqs5xx_setup_device(dev);
+    if (ret < 0) {
+        /* Device not ready yet, retry in 200ms */
+        LOG_DBG("Deferred setup retry (err %d)", ret);
+        k_work_schedule(&data->deferred_setup_work, K_MSEC(200));
+        return;
+    }
+
+    /* Setup succeeded — start polling */
+    LOG_INF("IQS5xx deferred setup succeeded, starting polling");
+    k_timer_start(&data->poll_timer, K_MSEC(config->poll_interval_ms),
+                  K_MSEC(config->poll_interval_ms));
+    data->initialized = true;
+}
 static int iqs5xx_setup_device(const struct device *dev) {
     const struct iqs5xx_config *config = dev->config;
     int ret;
@@ -331,6 +352,7 @@ static int iqs5xx_init(const struct device *dev) {
     data->dev = dev;
     k_work_init(&data->work, iqs5xx_work_handler);
     k_work_init_delayable(&data->button_release_work, iqs5xx_button_release_work_handler);
+    k_work_init_delayable(&data->deferred_setup_work, iqs5xx_deferred_setup_handler);
 
     /* Configure reset GPIO if available */
     if (config->reset_gpio.port) {
@@ -384,46 +406,29 @@ static int iqs5xx_init(const struct device *dev) {
         k_timer_init(&data->poll_timer, iqs5xx_poll_timer_handler, NULL);
     }
 
-    /* Wait for device to be ready */
-    k_msleep(500);
-
-    /*
-     * Setup device configuration.
-     * In polling mode, the chip may NACK if we miss its comm window,
-     * so retry setup multiple times with delays between attempts.
-     */
     if (!config->rdy_gpio.port) {
-        /* Polling mode: retry up to 100 times (~1500ms total) */
-        int attempts = 100;
-        for (int i = 0; i < attempts; i++) {
-            ret = iqs5xx_setup_device(dev);
-            if (ret == 0) {
-                LOG_INF("Device setup succeeded on attempt %d", i + 1);
-                break;
-            }
-            k_msleep(15);
-        }
-        if (ret < 0) {
-            LOG_ERR("Failed to setup device after %d attempts: %d", attempts, ret);
-            return ret;
-        }
+        /*
+         * Polling mode: use deferred setup.
+         * Schedule first attempt after 1 second to let other devices
+         * finish initializing and free up the I2C bus.
+         * The handler will retry every 200ms until the device responds.
+         */
+        LOG_INF("IQS5xx: scheduling deferred setup in 1000ms");
+        k_work_schedule(&data->deferred_setup_work, K_MSEC(1000));
     } else {
-        /* Interrupt mode: single attempt (RDY guarantees comm window) */
+        /* Interrupt mode: setup immediately (RDY guarantees comm window) */
+        k_msleep(500);
+
         ret = iqs5xx_setup_device(dev);
         if (ret < 0) {
             LOG_ERR("Failed to setup device: %d", ret);
             return ret;
         }
+
+        data->initialized = true;
     }
 
-    /* Start polling timer if in polling mode */
-    if (!config->rdy_gpio.port) {
-        k_timer_start(&data->poll_timer, K_MSEC(config->poll_interval_ms),
-                      K_MSEC(config->poll_interval_ms));
-    }
-
-    data->initialized = true;
-    LOG_INF("IQS5xx trackpad initialized");
+    LOG_INF("IQS5xx init complete (polling setup deferred)");
 
     return 0;
 }
