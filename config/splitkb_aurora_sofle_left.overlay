@@ -1,3 +1,5 @@
+#include <input/processors.dtsi>
+
 / {
     /* Split input: receives touchpad data forwarded from peripheral (right) */
     split_inputs {
@@ -13,5 +15,8 @@
     tps43_listener: tps43_listener {
         compatible = "zmk,input-listener";
         device = <&tps43_split>;
+        /* Pointer sensitivity: multiplies X/Y by 3/2. Tune the ratio to
+         * taste — first knob to reach for if the cursor feels slow/fast. */
+        input-processors = <&zip_xy_scaler 3 2>;
     };
 };
