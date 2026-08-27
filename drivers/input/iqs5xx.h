@@ -15,6 +15,9 @@
 
 #define IQS5XX_END_COMM_WINDOW 0xEEEE
 
+/* Active-mode report rate, 16-bit milliseconds */
+#define IQS5XX_ACTIVE_REPORT_RATE 0x057A
+
 #define IQS5XX_SYSTEM_CONTROL_0 0x0431
 #define IQS5XX_ACK_RESET BIT(7)
 #define IQS5XX_AUTO_ATI BIT(5)
@@ -98,6 +101,9 @@ struct iqs5xx_config {
 
     /* Polling interval in ms (used when rdy-gpios is not specified) */
     uint16_t poll_interval_ms;
+
+    /* Chip-side active report rate in ms; defaults to poll_interval_ms */
+    uint16_t report_rate_ms;
 
     bool one_finger_tap;
     bool press_and_hold;

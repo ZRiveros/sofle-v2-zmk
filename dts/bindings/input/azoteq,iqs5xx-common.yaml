@@ -17,6 +17,13 @@ properties:
       Only used in polling mode. Default 10ms (100Hz).
       Lower values = more responsive but higher CPU usage.
 
+  report-rate-ms:
+    type: int
+    description: |
+      Chip-side Active Report Rate in ms (register 0x057A). Defaults to
+      poll-interval-ms so the chip's sensing cycle and the MCU's poll
+      cadence can't drift apart. Only set this if you need them decoupled.
+
   one-finger-tap:
     type: boolean
     description: "Register single finger tap gestures and report them as a left click"

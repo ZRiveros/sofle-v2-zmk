@@ -19,33 +19,11 @@
 
 LOG_MODULE_REGISTER(iqs5xx, CONFIG_INPUT_LOG_LEVEL);
 
-static int iqs5xx_read_reg16(const struct device *dev, uint16_t reg, uint16_t *val) {
-    const struct iqs5xx_config *config = dev->config;
-    uint8_t buf[2];
-    uint8_t reg_buf[2] = {reg >> 8, reg & 0xFF};
-    int ret;
-
-    ret = i2c_write_read_dt(&config->i2c, reg_buf, sizeof(reg_buf), buf, sizeof(buf));
-    if (ret < 0) {
-        return ret;
-    }
-
-    *val = (buf[0] << 8) | buf[1];
-    return 0;
-}
-
 static int iqs5xx_write_reg16(const struct device *dev, uint16_t reg, uint16_t val) {
     const struct iqs5xx_config *config = dev->config;
     uint8_t buf[4] = {reg >> 8, reg & 0xFF, val >> 8, val & 0xFF};
 
     return i2c_write_dt(&config->i2c, buf, sizeof(buf));
-}
-
-static int iqs5xx_read_reg8(const struct device *dev, uint16_t reg, uint8_t *val) {
-    const struct iqs5xx_config *config = dev->config;
-    uint8_t reg_buf[2] = {reg >> 8, reg & 0xFF};
-
-    return i2c_write_read_dt(&config->i2c, reg_buf, sizeof(reg_buf), val, 1);
 }
 
 static int iqs5xx_write_reg8(const struct device *dev, uint16_t reg, uint8_t val) {
@@ -99,7 +77,6 @@ static void iqs5xx_work_handler(struct k_work *work) {
     struct iqs5xx_data *data = CONTAINER_OF(work, struct iqs5xx_data, work);
     const struct device *dev = data->dev;
     const struct iqs5xx_config *config = dev->config;
-    uint8_t sys_info_0, sys_info_1, gesture_events_0, gesture_events_1, num_fingers;
     int ret;
 
     /* Setup (first boot or reset recovery) in flight — stay off the bus. */
@@ -108,36 +85,32 @@ static void iqs5xx_work_handler(struct k_work *work) {
     }
 
     /*
+     * Registers 0x000D..0x0015 are contiguous (gestures 0/1, sysinfo 0/1,
+     * finger count, rel X, rel Y) — fetch the whole status block in one
+     * atomic 9-byte burst instead of up to 7 separate transactions.
+     *
      * In polling mode, the chip NACKs I2C outside its communication window.
      * This is normal — just silently bail and try again next poll cycle.
      */
-    ret = iqs5xx_read_reg8(dev, IQS5XX_SYSTEM_INFO_0, &sys_info_0);
+    uint8_t buf[9];
+    uint8_t reg_buf[2] = {IQS5XX_GESTURE_EVENTS_0 >> 8, IQS5XX_GESTURE_EVENTS_0 & 0xFF};
+    ret = i2c_write_read_dt(&config->i2c, reg_buf, sizeof(reg_buf), buf, sizeof(buf));
     if (ret < 0) {
         /* NACK is expected in polling mode — not an error */
         if (!config->rdy_gpio.port) {
             return;
         }
-        LOG_ERR("Failed to read system info 0: %d", ret);
+        LOG_ERR("Failed to read status block: %d", ret);
         goto end_comm;
     }
 
-    ret = iqs5xx_read_reg8(dev, IQS5XX_SYSTEM_INFO_1, &sys_info_1);
-    if (ret < 0) {
-        LOG_ERR("Failed to read system info 1: %d", ret);
-        goto end_comm;
-    }
-
-    ret = iqs5xx_read_reg8(dev, IQS5XX_GESTURE_EVENTS_0, &gesture_events_0);
-    if (ret < 0) {
-        LOG_ERR("Failed to read gesture events: %d", ret);
-        goto end_comm;
-    }
-
-    ret = iqs5xx_read_reg8(dev, IQS5XX_GESTURE_EVENTS_1, &gesture_events_1);
-    if (ret < 0) {
-        LOG_ERR("Failed to read gesture events 1: %d", ret);
-        goto end_comm;
-    }
+    uint8_t gesture_events_0 = buf[0];
+    uint8_t gesture_events_1 = buf[1];
+    uint8_t sys_info_0 = buf[2];
+    uint8_t sys_info_1 = buf[3];
+    /* buf[4] = finger count — comes along for free, currently unused */
+    int16_t rel_x = (int16_t)((buf[5] << 8) | buf[6]);
+    int16_t rel_y = (int16_t)((buf[7] << 8) | buf[8]);
 
     if (sys_info_0 & IQS5XX_SHOW_RESET) {
         /*
@@ -181,21 +154,6 @@ static void iqs5xx_work_handler(struct k_work *work) {
     bool hold_became_active = (gesture_events_0 & IQS5XX_PRESS_AND_HOLD) && !data->active_hold;
     bool hold_released = !(gesture_events_0 & IQS5XX_PRESS_AND_HOLD) && data->active_hold;
 
-    int16_t rel_x, rel_y;
-    if (tp_movement || scroll) {
-        ret = iqs5xx_read_reg16(dev, IQS5XX_REL_X, (uint16_t *)&rel_x);
-        if (ret < 0) {
-            LOG_ERR("Failed to read relative X: %d", ret);
-            goto end_comm;
-        }
-
-        ret = iqs5xx_read_reg16(dev, IQS5XX_REL_Y, (uint16_t *)&rel_y);
-        if (ret < 0) {
-            LOG_ERR("Failed to read relative Y: %d", ret);
-            goto end_comm;
-        }
-    }
-
     if (hold_became_active) {
         LOG_INF("Hold became active");
         input_report_key(dev, LEFT_BUTTON_CODE, 1, true, K_FOREVER);
@@ -237,12 +195,6 @@ static void iqs5xx_work_handler(struct k_work *work) {
             goto end_comm;
         }
     } else if (tp_movement) {
-        ret = iqs5xx_read_reg8(dev, IQS5XX_NUM_FINGERS, &num_fingers);
-        if (ret < 0) {
-            LOG_ERR("Failed to read number of fingers: %d", ret);
-            goto end_comm;
-        }
-
         if (rel_x != 0 || rel_y != 0) {
             input_report_rel(dev, INPUT_REL_X, rel_x, false, K_FOREVER);
             input_report_rel(dev, INPUT_REL_Y, rel_y, true, K_FOREVER);
@@ -314,6 +266,17 @@ static int iqs5xx_setup_device(const struct device *dev) {
     ret = iqs5xx_write_reg8(dev, IQS5XX_SYSTEM_CONFIG_1, sys_config_1);
     if (ret < 0) {
         LOG_ERR("Failed to configure event mode: %d", ret);
+        return ret;
+    }
+
+    /*
+     * Sync the chip's sensing cycle to our poll cadence. The chip
+     * overwrites REL_X/REL_Y every report cycle, so an unmatched rate
+     * silently drops motion between polls (under-travel + jitter).
+     */
+    ret = iqs5xx_write_reg16(dev, IQS5XX_ACTIVE_REPORT_RATE, config->report_rate_ms);
+    if (ret < 0) {
+        LOG_ERR("Failed to set active report rate: %d", ret);
         return ret;
     }
 
@@ -487,6 +450,8 @@ static int iqs5xx_init(const struct device *dev) {
         .rdy_gpio = GPIO_DT_SPEC_INST_GET_OR(n, rdy_gpios, {0}),                                  \
         .reset_gpio = GPIO_DT_SPEC_INST_GET_OR(n, reset_gpios, {0}),                               \
         .poll_interval_ms = DT_INST_PROP_OR(n, poll_interval_ms, 10),                              \
+        .report_rate_ms =                                                                          \
+            DT_INST_PROP_OR(n, report_rate_ms, DT_INST_PROP_OR(n, poll_interval_ms, 10)),          \
         .one_finger_tap = DT_INST_PROP(n, one_finger_tap),                                         \
         .press_and_hold = DT_INST_PROP(n, press_and_hold),                                         \
         .two_finger_tap = DT_INST_PROP(n, two_finger_tap),                                         \
