@@ -14,13 +14,11 @@
 
 &led_strip {
     /*
-     * EXPERIMENT: was <35> (29 per-key + 6 underglow per side). If the 6
-     * underglow LEDs sit at the TAIL of the data chain, <29> leaves them
-     * unaddressed and dark (firmware substitute for the JP2 jumper). If
-     * instead 6 underglow LEDs light up and 6 per-key LEDs go dark, the
-     * underglow is at the HEAD of the chain — revert this to <35>.
+     * Must stay 35: tested 2026-08-27 — <29> darkened the bottom-row
+     * per-key LEDs, so that row sits at the TAIL of the chain and the
+     * underglow LEDs cannot be dropped by shortening chain-length.
      */
-    chain-length = <29>;
+    chain-length = <35>; // 29 per-key + 6 underglow per side
 };
 
 / {
