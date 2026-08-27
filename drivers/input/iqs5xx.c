@@ -127,12 +127,12 @@ static void iqs5xx_work_handler(struct k_work *work) {
         goto end_comm;
     }
 
-    if (sys_info_0 & IQS5XX_ATI_ERROR) {
-        /* Sensing conditions changed (e.g. charger noise) — force a re-tune. */
-        LOG_WRN("ATI error reported — triggering manual re-ATI");
-        iqs5xx_write_reg8(dev, IQS5XX_SYSTEM_CONTROL_0, IQS5XX_AUTO_ATI);
-        goto end_comm;
-    }
+    /*
+     * No manual AUTO_ATI trigger here: re-firing it every poll while
+     * ATI_ERROR stays set locks the chip in a recalibration loop that
+     * freezes input (observed 2026-08-27). The REATI/ALP_REATI config
+     * bits let the chip re-tune itself when it decides it needs to.
+     */
 
     bool tp_movement = (sys_info_1 & IQS5XX_TP_MOVEMENT) != 0;
     bool scroll = (gesture_events_1 & IQS5XX_SCROLL) != 0;

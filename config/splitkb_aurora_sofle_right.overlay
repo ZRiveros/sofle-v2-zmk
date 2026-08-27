@@ -1,5 +1,3 @@
-#include <zephyr/dt-bindings/i2c/i2c.h>
-
 / {
     /* Split input: forwards touchpad data from peripheral to central via BLE */
     split_inputs {
@@ -26,18 +24,19 @@
 
 &pro_micro_i2c {
     status = "okay";
-    /* IQS5xx supports 400kHz; OLED is disabled on this half so nothing
-     * else shares the bus. */
-    clock-frequency = <I2C_BITRATE_FAST>;
+    /* Stay at the 100kHz default: 400kHz was tried 2026-08-27 and caused
+     * severe touchpad lag — the wiring/pull-ups are marginal at that speed
+     * and corrupted reads silently. Do not raise this again. */
 
     tps43: iqs5xx@74 {
         compatible = "azoteq,iqs5xx";
         reg = <0x74>;
 
         /* No RDY pin — using polling mode (4 wires only: SDA, SCL, VCC, GND) */
-        /* 10ms matches the chip's native report rate; the driver now syncs
-         * the chip's Active Report Rate to this value at setup. */
-        poll-interval-ms = <10>;
+        /* 16ms is the long-proven poll cadence for this board. The driver
+         * syncs the chip's Active Report Rate to this value at setup, so
+         * the clocks stay matched (no lost motion) at any interval. */
+        poll-interval-ms = <16>;
 
         one-finger-tap;
         press-and-hold;
@@ -57,10 +56,9 @@
         flip-y;
         switch-xy;
 
-        /* Tuning. bottom-beta 2 was near-max smoothing, almost certainly
-         * compensating for the report-rate aliasing (now fixed) — walked
-         * back toward the default for a crisper feel. Tune to taste. */
-        bottom-beta = <5>;
+        /* Tuning — 2 is the user's empirically preferred value; 5 was
+         * tried 2026-08-27 and felt worse. */
+        bottom-beta = <2>;
         stationary-threshold = <2>;
     };
 };
