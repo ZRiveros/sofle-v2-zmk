@@ -5,6 +5,7 @@ wireless split keyboard:
 
 - **Controllers:** nice!nano v2 (nRF52840), one per half
 - **Left half:** central — talks to the host over BLE/USB, has the OLED
+  (custom status screen: both halves' battery levels, output, active layer)
 - **Right half:** peripheral — carries an **Azoteq TPS65 (IQS5xx) touchpad**
   on I2C (polling mode, no RDY pin — the PCB has no spare pin). Its OLED is
   disabled to free the I2C bus.
