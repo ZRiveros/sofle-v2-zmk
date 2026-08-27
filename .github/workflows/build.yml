@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - sofle_hybrid_rgb_rev5
   workflow_dispatch:
 
 permissions:
@@ -15,7 +14,9 @@ jobs:
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3
 
   create_release_master:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    # Also fires on manual workflow_dispatch runs from master, so a manual
+    # rebuild produces a downloadable release instead of a stale "latest"
+    if: github.ref == 'refs/heads/master'
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -29,7 +30,7 @@ jobs:
         run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
 
       - name: Create Release with firmware
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.date.outputs.date }}-${{ github.sha }}
           name: Firmware ${{ steps.date.outputs.date }} - master
