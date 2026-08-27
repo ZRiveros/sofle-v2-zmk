@@ -13,7 +13,14 @@
 #include "keys_sv.h"
 
 &led_strip {
-    chain-length = <35>; // 29 per-key + 6 underglow per side
+    /*
+     * EXPERIMENT: was <35> (29 per-key + 6 underglow per side). If the 6
+     * underglow LEDs sit at the TAIL of the data chain, <29> leaves them
+     * unaddressed and dark (firmware substitute for the JP2 jumper). If
+     * instead 6 underglow LEDs light up and 6 per-key LEDs go dark, the
+     * underglow is at the HEAD of the chain — revert this to <35>.
+     */
+    chain-length = <29>;
 };
 
 / {
