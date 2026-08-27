@@ -75,12 +75,37 @@ static void iqs5xx_button_release_work_handler(struct k_work *work) {
     }
 }
 
+static void iqs5xx_release_stuck_inputs(struct iqs5xx_data *data) {
+    /*
+     * Called on a detected chip reset: the chip forgets it was mid-gesture,
+     * so make sure the host doesn't keep thinking a button/scroll is held.
+     */
+    k_work_cancel_delayable(&data->button_release_work);
+    for (int i = 0; i < 3; i++) {
+        if (data->buttons_pressed & BIT(i)) {
+            input_report_key(data->dev, INPUT_BTN_0 + i, 0, true, K_FOREVER);
+            data->buttons_pressed &= ~BIT(i);
+        }
+    }
+    if (data->active_hold) {
+        input_report_key(data->dev, LEFT_BUTTON_CODE, 0, true, K_FOREVER);
+        data->active_hold = false;
+    }
+    data->scroll_x_acc = 0;
+    data->scroll_y_acc = 0;
+}
+
 static void iqs5xx_work_handler(struct k_work *work) {
     struct iqs5xx_data *data = CONTAINER_OF(work, struct iqs5xx_data, work);
     const struct device *dev = data->dev;
     const struct iqs5xx_config *config = dev->config;
     uint8_t sys_info_0, sys_info_1, gesture_events_0, gesture_events_1, num_fingers;
     int ret;
+
+    /* Setup (first boot or reset recovery) in flight — stay off the bus. */
+    if (!data->initialized) {
+        return;
+    }
 
     /*
      * In polling mode, the chip NACKs I2C outside its communication window.
@@ -115,8 +140,24 @@ static void iqs5xx_work_handler(struct k_work *work) {
     }
 
     if (sys_info_0 & IQS5XX_SHOW_RESET) {
-        LOG_INF("Device reset detected");
+        /*
+         * A reset returned every config register (gestures, axis flips,
+         * thresholds) to factory defaults. Ack it, then re-run the full
+         * setup via the deferred-setup machinery — it retries until the
+         * chip responds and re-arms the poll timer.
+         */
+        LOG_WRN("Device reset detected — re-running setup");
         iqs5xx_write_reg8(dev, IQS5XX_SYSTEM_CONTROL_0, IQS5XX_ACK_RESET);
+        data->initialized = false;
+        iqs5xx_release_stuck_inputs(data);
+        k_work_schedule(&data->deferred_setup_work, K_MSEC(50));
+        goto end_comm;
+    }
+
+    if (sys_info_0 & IQS5XX_ATI_ERROR) {
+        /* Sensing conditions changed (e.g. charger noise) — force a re-tune. */
+        LOG_WRN("ATI error reported — triggering manual re-ATI");
+        iqs5xx_write_reg8(dev, IQS5XX_SYSTEM_CONTROL_0, IQS5XX_AUTO_ATI);
         goto end_comm;
     }
 
@@ -245,10 +286,12 @@ static void iqs5xx_deferred_setup_handler(struct k_work *work) {
         return;
     }
 
-    /* Setup succeeded — start polling */
+    /* Setup succeeded — (re)start polling. Timer only exists in polling mode. */
     LOG_INF("IQS5xx deferred setup succeeded, starting polling");
-    k_timer_start(&data->poll_timer, K_MSEC(config->poll_interval_ms),
-                  K_MSEC(config->poll_interval_ms));
+    if (!config->rdy_gpio.port) {
+        k_timer_start(&data->poll_timer, K_MSEC(config->poll_interval_ms),
+                      K_MSEC(config->poll_interval_ms));
+    }
     data->initialized = true;
 }
 static int iqs5xx_setup_device(const struct device *dev) {
@@ -327,7 +370,8 @@ static int iqs5xx_setup_device(const struct device *dev) {
         return ret;
     }
 
-    ret = iqs5xx_write_reg8(dev, IQS5XX_SYSTEM_CONFIG_0, IQS5XX_SETUP_COMPLETE | IQS5XX_WDT);
+    ret = iqs5xx_write_reg8(dev, IQS5XX_SYSTEM_CONFIG_0,
+                            IQS5XX_SETUP_COMPLETE | IQS5XX_WDT | IQS5XX_REATI | IQS5XX_ALP_REATI);
     if (ret < 0) {
         LOG_ERR("Failed to configure system: %d", ret);
         return ret;
