@@ -48,13 +48,18 @@ The August work had two goals. Neither worked, and both were rolled back:
 1. **Show the right half's battery on the left OLED.** The right half has the
    touchpad and no working display, so its battery level is invisible. The
    attempt used a custom status screen and
-   `CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING`. The code is still in
-   git history (commit `2ebb568`) if someone wants to try again in isolation.
+   `CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING`, copied as-is from
+   [Dreeoo/zmk-config](https://github.com/Dreeoo/zmk-config) where it works
+   on the same OLED. It was added last, on top of the August touchpad changes,
+   and rolled back with them, so it was never tested on its own. The code is
+   in git history (commit `2ebb568`).
 2. **Turn off the underglow LEDs and keep the per-key LEDs.** Underglow and
    per-key LEDs share one LED chain (`chain-length = <35>`, 29 per-key + 6
    underglow). Shortening the chain to 29 darkened the bottom row of per-key
-   LEDs instead, because that row sits at the end of the chain. Underglow can't
-   be dropped that way, so it still lights up together with the per-key RGB.
+   LEDs instead, because that row sits at the end of the chain. The JP2 jumper
+   didn't help either. The only remaining option is desoldering the underglow
+   LEDs, which was skipped, so underglow lights up together with the per-key
+   RGB.
 
 Other things tried in August that didn't work on this hardware:
 
