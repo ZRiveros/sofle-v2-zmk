@@ -13,11 +13,6 @@
 #include "keys_sv.h"
 
 &led_strip {
-    /*
-     * Must stay 35: tested 2026-08-27 — <29> darkened the bottom-row
-     * per-key LEDs, so that row sits at the TAIL of the chain and the
-     * underglow LEDs cannot be dropped by shortening chain-length.
-     */
     chain-length = <35>; // 29 per-key + 6 underglow per side
 };
 

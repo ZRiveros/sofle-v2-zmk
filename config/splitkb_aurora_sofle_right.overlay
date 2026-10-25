@@ -24,18 +24,12 @@
 
 &pro_micro_i2c {
     status = "okay";
-    /* Stay at the 100kHz default: 400kHz was tried 2026-08-27 and caused
-     * severe touchpad lag — the wiring/pull-ups are marginal at that speed
-     * and corrupted reads silently. Do not raise this again. */
 
     tps43: iqs5xx@74 {
         compatible = "azoteq,iqs5xx";
         reg = <0x74>;
 
         /* No RDY pin — using polling mode (4 wires only: SDA, SCL, VCC, GND) */
-        /* 16ms is the long-proven poll cadence for this board. The driver
-         * syncs the chip's Active Report Rate to this value at setup, so
-         * the clocks stay matched (no lost motion) at any interval. */
         poll-interval-ms = <16>;
 
         one-finger-tap;
@@ -56,8 +50,7 @@
         flip-y;
         switch-xy;
 
-        /* Tuning — 2 is the user's empirically preferred value; 5 was
-         * tried 2026-08-27 and felt worse. */
+        /* Tuning */
         bottom-beta = <2>;
         stationary-threshold = <2>;
     };

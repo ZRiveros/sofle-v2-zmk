@@ -19,11 +19,33 @@
 
 LOG_MODULE_REGISTER(iqs5xx, CONFIG_INPUT_LOG_LEVEL);
 
+static int iqs5xx_read_reg16(const struct device *dev, uint16_t reg, uint16_t *val) {
+    const struct iqs5xx_config *config = dev->config;
+    uint8_t buf[2];
+    uint8_t reg_buf[2] = {reg >> 8, reg & 0xFF};
+    int ret;
+
+    ret = i2c_write_read_dt(&config->i2c, reg_buf, sizeof(reg_buf), buf, sizeof(buf));
+    if (ret < 0) {
+        return ret;
+    }
+
+    *val = (buf[0] << 8) | buf[1];
+    return 0;
+}
+
 static int iqs5xx_write_reg16(const struct device *dev, uint16_t reg, uint16_t val) {
     const struct iqs5xx_config *config = dev->config;
     uint8_t buf[4] = {reg >> 8, reg & 0xFF, val >> 8, val & 0xFF};
 
     return i2c_write_dt(&config->i2c, buf, sizeof(buf));
+}
+
+static int iqs5xx_read_reg8(const struct device *dev, uint16_t reg, uint8_t *val) {
+    const struct iqs5xx_config *config = dev->config;
+    uint8_t reg_buf[2] = {reg >> 8, reg & 0xFF};
+
+    return i2c_write_read_dt(&config->i2c, reg_buf, sizeof(reg_buf), val, 1);
 }
 
 static int iqs5xx_write_reg8(const struct device *dev, uint16_t reg, uint8_t val) {
@@ -53,86 +75,50 @@ static void iqs5xx_button_release_work_handler(struct k_work *work) {
     }
 }
 
-static void iqs5xx_release_stuck_inputs(struct iqs5xx_data *data) {
-    /*
-     * Called on a detected chip reset: the chip forgets it was mid-gesture,
-     * so make sure the host doesn't keep thinking a button/scroll is held.
-     */
-    k_work_cancel_delayable(&data->button_release_work);
-    for (int i = 0; i < 3; i++) {
-        if (data->buttons_pressed & BIT(i)) {
-            input_report_key(data->dev, INPUT_BTN_0 + i, 0, true, K_FOREVER);
-            data->buttons_pressed &= ~BIT(i);
-        }
-    }
-    if (data->active_hold) {
-        input_report_key(data->dev, LEFT_BUTTON_CODE, 0, true, K_FOREVER);
-        data->active_hold = false;
-    }
-    data->scroll_x_acc = 0;
-    data->scroll_y_acc = 0;
-}
-
 static void iqs5xx_work_handler(struct k_work *work) {
     struct iqs5xx_data *data = CONTAINER_OF(work, struct iqs5xx_data, work);
     const struct device *dev = data->dev;
     const struct iqs5xx_config *config = dev->config;
+    uint8_t sys_info_0, sys_info_1, gesture_events_0, gesture_events_1, num_fingers;
     int ret;
 
-    /* Setup (first boot or reset recovery) in flight — stay off the bus. */
-    if (!data->initialized) {
-        return;
-    }
-
     /*
-     * Registers 0x000D..0x0015 are contiguous (gestures 0/1, sysinfo 0/1,
-     * finger count, rel X, rel Y) — fetch the whole status block in one
-     * atomic 9-byte burst instead of up to 7 separate transactions.
-     *
      * In polling mode, the chip NACKs I2C outside its communication window.
      * This is normal — just silently bail and try again next poll cycle.
      */
-    uint8_t buf[9];
-    uint8_t reg_buf[2] = {IQS5XX_GESTURE_EVENTS_0 >> 8, IQS5XX_GESTURE_EVENTS_0 & 0xFF};
-    ret = i2c_write_read_dt(&config->i2c, reg_buf, sizeof(reg_buf), buf, sizeof(buf));
+    ret = iqs5xx_read_reg8(dev, IQS5XX_SYSTEM_INFO_0, &sys_info_0);
     if (ret < 0) {
         /* NACK is expected in polling mode — not an error */
         if (!config->rdy_gpio.port) {
             return;
         }
-        LOG_ERR("Failed to read status block: %d", ret);
+        LOG_ERR("Failed to read system info 0: %d", ret);
         goto end_comm;
     }
 
-    uint8_t gesture_events_0 = buf[0];
-    uint8_t gesture_events_1 = buf[1];
-    uint8_t sys_info_0 = buf[2];
-    uint8_t sys_info_1 = buf[3];
-    /* buf[4] = finger count — comes along for free, currently unused */
-    int16_t rel_x = (int16_t)((buf[5] << 8) | buf[6]);
-    int16_t rel_y = (int16_t)((buf[7] << 8) | buf[8]);
+    ret = iqs5xx_read_reg8(dev, IQS5XX_SYSTEM_INFO_1, &sys_info_1);
+    if (ret < 0) {
+        LOG_ERR("Failed to read system info 1: %d", ret);
+        goto end_comm;
+    }
+
+    ret = iqs5xx_read_reg8(dev, IQS5XX_GESTURE_EVENTS_0, &gesture_events_0);
+    if (ret < 0) {
+        LOG_ERR("Failed to read gesture events: %d", ret);
+        goto end_comm;
+    }
+
+    ret = iqs5xx_read_reg8(dev, IQS5XX_GESTURE_EVENTS_1, &gesture_events_1);
+    if (ret < 0) {
+        LOG_ERR("Failed to read gesture events 1: %d", ret);
+        goto end_comm;
+    }
 
     if (sys_info_0 & IQS5XX_SHOW_RESET) {
-        /*
-         * A reset returned every config register (gestures, axis flips,
-         * thresholds) to factory defaults. Ack it, then re-run the full
-         * setup via the deferred-setup machinery — it retries until the
-         * chip responds and re-arms the poll timer.
-         */
-        LOG_WRN("Device reset detected — re-running setup");
+        LOG_INF("Device reset detected");
         iqs5xx_write_reg8(dev, IQS5XX_SYSTEM_CONTROL_0, IQS5XX_ACK_RESET);
-        data->initialized = false;
-        iqs5xx_release_stuck_inputs(data);
-        k_work_schedule(&data->deferred_setup_work, K_MSEC(50));
         goto end_comm;
     }
-
-    /*
-     * No manual AUTO_ATI trigger here: re-firing it every poll while
-     * ATI_ERROR stays set locks the chip in a recalibration loop that
-     * freezes input (observed 2026-08-27). The REATI/ALP_REATI config
-     * bits let the chip re-tune itself when it decides it needs to.
-     */
 
     bool tp_movement = (sys_info_1 & IQS5XX_TP_MOVEMENT) != 0;
     bool scroll = (gesture_events_1 & IQS5XX_SCROLL) != 0;
@@ -153,6 +139,21 @@ static void iqs5xx_work_handler(struct k_work *work) {
 
     bool hold_became_active = (gesture_events_0 & IQS5XX_PRESS_AND_HOLD) && !data->active_hold;
     bool hold_released = !(gesture_events_0 & IQS5XX_PRESS_AND_HOLD) && data->active_hold;
+
+    int16_t rel_x, rel_y;
+    if (tp_movement || scroll) {
+        ret = iqs5xx_read_reg16(dev, IQS5XX_REL_X, (uint16_t *)&rel_x);
+        if (ret < 0) {
+            LOG_ERR("Failed to read relative X: %d", ret);
+            goto end_comm;
+        }
+
+        ret = iqs5xx_read_reg16(dev, IQS5XX_REL_Y, (uint16_t *)&rel_y);
+        if (ret < 0) {
+            LOG_ERR("Failed to read relative Y: %d", ret);
+            goto end_comm;
+        }
+    }
 
     if (hold_became_active) {
         LOG_INF("Hold became active");
@@ -195,6 +196,12 @@ static void iqs5xx_work_handler(struct k_work *work) {
             goto end_comm;
         }
     } else if (tp_movement) {
+        ret = iqs5xx_read_reg8(dev, IQS5XX_NUM_FINGERS, &num_fingers);
+        if (ret < 0) {
+            LOG_ERR("Failed to read number of fingers: %d", ret);
+            goto end_comm;
+        }
+
         if (rel_x != 0 || rel_y != 0) {
             input_report_rel(dev, INPUT_REL_X, rel_x, false, K_FOREVER);
             input_report_rel(dev, INPUT_REL_Y, rel_y, true, K_FOREVER);
@@ -238,12 +245,10 @@ static void iqs5xx_deferred_setup_handler(struct k_work *work) {
         return;
     }
 
-    /* Setup succeeded — (re)start polling. Timer only exists in polling mode. */
+    /* Setup succeeded — start polling */
     LOG_INF("IQS5xx deferred setup succeeded, starting polling");
-    if (!config->rdy_gpio.port) {
-        k_timer_start(&data->poll_timer, K_MSEC(config->poll_interval_ms),
-                      K_MSEC(config->poll_interval_ms));
-    }
+    k_timer_start(&data->poll_timer, K_MSEC(config->poll_interval_ms),
+                  K_MSEC(config->poll_interval_ms));
     data->initialized = true;
 }
 static int iqs5xx_setup_device(const struct device *dev) {
@@ -266,17 +271,6 @@ static int iqs5xx_setup_device(const struct device *dev) {
     ret = iqs5xx_write_reg8(dev, IQS5XX_SYSTEM_CONFIG_1, sys_config_1);
     if (ret < 0) {
         LOG_ERR("Failed to configure event mode: %d", ret);
-        return ret;
-    }
-
-    /*
-     * Sync the chip's sensing cycle to our poll cadence. The chip
-     * overwrites REL_X/REL_Y every report cycle, so an unmatched rate
-     * silently drops motion between polls (under-travel + jitter).
-     */
-    ret = iqs5xx_write_reg16(dev, IQS5XX_ACTIVE_REPORT_RATE, config->report_rate_ms);
-    if (ret < 0) {
-        LOG_ERR("Failed to set active report rate: %d", ret);
         return ret;
     }
 
@@ -333,8 +327,7 @@ static int iqs5xx_setup_device(const struct device *dev) {
         return ret;
     }
 
-    ret = iqs5xx_write_reg8(dev, IQS5XX_SYSTEM_CONFIG_0,
-                            IQS5XX_SETUP_COMPLETE | IQS5XX_WDT | IQS5XX_REATI | IQS5XX_ALP_REATI);
+    ret = iqs5xx_write_reg8(dev, IQS5XX_SYSTEM_CONFIG_0, IQS5XX_SETUP_COMPLETE | IQS5XX_WDT);
     if (ret < 0) {
         LOG_ERR("Failed to configure system: %d", ret);
         return ret;
@@ -450,8 +443,6 @@ static int iqs5xx_init(const struct device *dev) {
         .rdy_gpio = GPIO_DT_SPEC_INST_GET_OR(n, rdy_gpios, {0}),                                  \
         .reset_gpio = GPIO_DT_SPEC_INST_GET_OR(n, reset_gpios, {0}),                               \
         .poll_interval_ms = DT_INST_PROP_OR(n, poll_interval_ms, 10),                              \
-        .report_rate_ms =                                                                          \
-            DT_INST_PROP_OR(n, report_rate_ms, DT_INST_PROP_OR(n, poll_interval_ms, 10)),          \
         .one_finger_tap = DT_INST_PROP(n, one_finger_tap),                                         \
         .press_and_hold = DT_INST_PROP(n, press_and_hold),                                         \
         .two_finger_tap = DT_INST_PROP(n, two_finger_tap),                                         \
