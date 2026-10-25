@@ -15,7 +15,8 @@ wireless split keyboard.
 - **Layout:** Swedish (`config/keys_sv.h`) with US-style shifted symbols via
   mod-morphs; 2 layers (Base, Raise)
 - **Encoders:** volume down/up (left), undo/redo `Ctrl+Z`/`Ctrl+Y` (right)
-- **Lighting:** per-key RGB, off at boot
+- **Lighting:** per-key RGB + underglow on one chain, off at boot (underglow
+  can't be turned off separately, see [Unsolved goals](#unsolved-goals))
 - **Power:** deep sleep is disabled (`CONFIG_ZMK_SLEEP=n`) for reliable split
   reconnects, so the halves drain their batteries faster when idle
 - **Touchpad driver:** vendored in-tree under `drivers/input/` (fork of
@@ -40,18 +41,24 @@ Two things were kept from August because they don't change the firmware:
 - **`.github/workflows/build.yml`** creates a release on manual runs too and
   uses `softprops/action-gh-release@v3`.
 
-### Known limitation: right half's battery on the left OLED
+### Unsolved goals
 
-The left OLED only shows the left half's battery. The goal was to also show
-the right half (where the touchpad is), but the August attempt (custom status
-screen + `CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING`) didn't work out
-and was rolled back along with the rest. The code is still in git history
-(commit `2ebb568`) if someone wants to try again in isolation.
+The August work had two goals. Neither worked, and both were rolled back:
+
+1. **Show the right half's battery on the left OLED.** The right half has the
+   touchpad and no working display, so its battery level is invisible. The
+   attempt used a custom status screen and
+   `CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING`. The code is still in
+   git history (commit `2ebb568`) if someone wants to try again in isolation.
+2. **Turn off the underglow LEDs and keep the per-key LEDs.** Underglow and
+   per-key LEDs share one LED chain (`chain-length = <35>`, 29 per-key + 6
+   underglow). Shortening the chain to 29 darkened the bottom row of per-key
+   LEDs instead, because that row sits at the end of the chain. Underglow can't
+   be dropped that way, so it still lights up together with the per-key RGB.
 
 Other things tried in August that didn't work on this hardware:
 
 - 400 kHz I2C on the right half: severe touchpad lag
-- `chain-length` below 35: darkened the bottom row of per-key LEDs
 - `CONFIG_ZMK_BLE_EXPERIMENTAL_SEC`: Windows asked for a passkey during pairing
 - `bottom-beta = 5`: felt worse than 2
 
